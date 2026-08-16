@@ -1,0 +1,322 @@
+#!/bin/bash
+
+# ==========================================================
+# Linux Server Health Monitor
+# Project 01 - LinuxProjects
+# ==========================================================
+
+# ---------- Functions ----------
+
+get_cpu_usage() {
+    top -bn1 | awk '/Cpu\(s\)/ {
+        printf "%.0f", 100 - $8
+    }'
+}
+
+get_memory_usage() {
+    free | awk '/Mem:/ {
+        printf "%.0f", ($3 / $2) * 100
+    }'
+}
+
+get_disk_usage() {
+    df / | awk 'NR==2 {
+        gsub("%","",$5)
+        print $5
+    }'
+}
+
+get_load_average() {
+    awk '{print $1}' /proc/loadavg
+}
+
+get_running_processes() {
+    ps --no-headers -e | wc -l
+}
+
+get_top_cpu_process() {
+    ps -eo comm,%cpu --sort=-%cpu | awk 'NR==2 {
+        print $1 " (" $2 "%)"
+    }'
+}
+
+get_top_memory_process() {
+    ps -eo comm,%mem --sort=-%mem | awk 'NR==2 {
+        print $1 " (" $2 "%)"
+    }'
+}
+
+check_service() {
+    local service="$1"
+
+    if ! command -v systemctl &>/dev/null; then
+        echo "UNAVAILABLE"
+        return
+    fi
+
+    if systemctl list-unit-files "$service.service" &>/dev/null 2>&1; then
+        if systemctl is-active --quiet "$service"; then
+            echo "RUNNING"
+        else
+            echo "STOPPED"
+        fi
+    else
+        echo "NOT INSTALLED"
+    fi
+}
+
+get_failed_services() {
+    systemctl --failed --no-legend 2>/dev/null | grep -c "failed"
+}
+
+get_ip_address() {
+    hostname -I 2>/dev/null | awk '{print $1}'
+}
+
+get_gateway() {
+    ip route 2>/dev/null | awk '/default/ {
+        print $3
+        exit
+    }'
+}
+
+check_internet() {
+    if ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
+        echo "ONLINE"
+    else
+        echo "OFFLINE"
+    fi
+}
+
+check_dns() {
+    if getent hosts google.com &>/dev/null; then
+        echo "OK"
+    else
+        echo "FAILED"
+    fi
+}
+
+check_firewall() {
+    if command -v ufw &>/dev/null; then
+
+        if ufw status 2>/dev/null | grep -q "Status: active"; then
+            echo "ACTIVE"
+        else
+            echo "INACTIVE"
+        fi
+
+    elif command -v nft &>/dev/null; then
+
+        if nft list ruleset 2>/dev/null | grep -q .; then
+            echo "ACTIVE"
+        else
+            echo "INACTIVE"
+        fi
+
+    else
+        echo "NOT INSTALLED"
+    fi
+}
+
+get_listening_ports() {
+    ss -ltnH 2>/dev/null | wc -l
+}
+
+# ---------- Collect Information ----------
+
+hostname_name=$(hostname)
+
+os_name=$(grep '^PRETTY_NAME=' /etc/os-release |
+    cut -d '"' -f 2)
+
+kernel_version=$(uname -r)
+
+architecture=$(uname -m)
+
+uptime_info=$(uptime -p)
+
+cpu_usage=$(get_cpu_usage)
+
+memory_usage=$(get_memory_usage)
+
+disk_usage=$(get_disk_usage)
+
+load_average=$(get_load_average)
+
+running_processes=$(get_running_processes)
+
+top_cpu_process=$(get_top_cpu_process)
+
+top_memory_process=$(get_top_memory_process)
+
+failed_services=$(get_failed_services)
+
+ssh_status=$(check_service ssh)
+
+docker_status=$(check_service docker)
+
+nginx_status=$(check_service nginx)
+
+ip_address=$(get_ip_address)
+
+gateway=$(get_gateway)
+
+internet_status=$(check_internet)
+
+dns_status=$(check_dns)
+
+firewall_status=$(check_firewall)
+
+listening_ports=$(get_listening_ports)
+
+# ---------- Health Evaluation ----------
+
+cpu_status="OK"
+
+if [ "$cpu_usage" -ge 90 ]; then
+    cpu_status="CRITICAL"
+elif [ "$cpu_usage" -ge 70 ]; then
+    cpu_status="WARNING"
+fi
+
+
+memory_status="OK"
+
+if [ "$memory_usage" -ge 90 ]; then
+    memory_status="CRITICAL"
+elif [ "$memory_usage" -ge 70 ]; then
+    memory_status="WARNING"
+fi
+
+
+disk_status="OK"
+
+if [ "$disk_usage" -ge 90 ]; then
+    disk_status="CRITICAL"
+elif [ "$disk_usage" -ge 80 ]; then
+    disk_status="WARNING"
+fi
+
+
+service_status="OK"
+
+if [ "$failed_services" -gt 0 ]; then
+    service_status="WARNING"
+fi
+
+
+network_status="OK"
+
+if [ "$internet_status" != "ONLINE" ] ||
+   [ "$dns_status" != "OK" ]; then
+    network_status="CRITICAL"
+fi
+
+
+overall_status="HEALTHY"
+
+if [ "$cpu_status" = "CRITICAL" ] ||
+   [ "$memory_status" = "CRITICAL" ] ||
+   [ "$disk_status" = "CRITICAL" ] ||
+   [ "$network_status" = "CRITICAL" ]; then
+
+    overall_status="CRITICAL"
+
+elif [ "$cpu_status" = "WARNING" ] ||
+     [ "$memory_status" = "WARNING" ] ||
+     [ "$disk_status" = "WARNING" ] ||
+     [ "$service_status" = "WARNING" ]; then
+
+    overall_status="WARNING"
+fi
+
+# ---------- Report ----------
+
+echo
+echo "=========================================================="
+echo "             LINUX SERVER HEALTH MONITOR"
+echo "=========================================================="
+
+echo
+echo "SYSTEM"
+echo "----------------------------------------------------------"
+printf "%-20s : %s\n" "Hostname" "$hostname_name"
+printf "%-20s : %s\n" "Operating System" "$os_name"
+printf "%-20s : %s\n" "Kernel" "$kernel_version"
+printf "%-20s : %s\n" "Architecture" "$architecture"
+printf "%-20s : %s\n" "Uptime" "$uptime_info"
+
+echo
+echo "RESOURCES"
+echo "----------------------------------------------------------"
+printf "%-20s : %s%% [%s]\n" \
+    "CPU Usage" "$cpu_usage" "$cpu_status"
+
+printf "%-20s : %s%% [%s]\n" \
+    "Memory Usage" "$memory_usage" "$memory_status"
+
+printf "%-20s : %s%% [%s]\n" \
+    "Disk Usage" "$disk_usage" "$disk_status"
+
+printf "%-20s : %s\n" \
+    "Load Average" "$load_average"
+
+echo
+echo "PROCESSES"
+echo "----------------------------------------------------------"
+printf "%-20s : %s\n" \
+    "Running Processes" "$running_processes"
+
+printf "%-20s : %s\n" \
+    "Top CPU Process" "$top_cpu_process"
+
+printf "%-20s : %s\n" \
+    "Top Memory Process" "$top_memory_process"
+
+echo
+echo "SERVICES"
+echo "----------------------------------------------------------"
+printf "%-20s : %s\n" \
+    "Failed Services" "$failed_services"
+
+printf "%-20s : %s\n" \
+    "SSH" "$ssh_status"
+
+printf "%-20s : %s\n" \
+    "Docker" "$docker_status"
+
+printf "%-20s : %s\n" \
+    "Nginx" "$nginx_status"
+
+echo
+echo "NETWORK"
+echo "----------------------------------------------------------"
+printf "%-20s : %s\n" \
+    "IP Address" "$ip_address"
+
+printf "%-20s : %s\n" \
+    "Default Gateway" "$gateway"
+
+printf "%-20s : %s\n" \
+    "Internet" "$internet_status"
+
+printf "%-20s : %s\n" \
+    "DNS Resolution" "$dns_status"
+
+echo
+echo "SECURITY"
+echo "----------------------------------------------------------"
+printf "%-20s : %s\n" \
+    "SSH" "$ssh_status"
+
+printf "%-20s : %s\n" \
+    "Firewall" "$firewall_status"
+
+printf "%-20s : %s\n" \
+    "Listening TCP Ports" "$listening_ports"
+
+echo
+echo "=========================================================="
+printf "OVERALL STATUS: %s\n" "$overall_status"
+echo "=========================================================="
+echo
