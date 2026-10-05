@@ -10,10 +10,12 @@ This repository documents my progression from Linux fundamentals toward practica
 
 | # | Project | Main Focus | Status |
 |---:|---|---|:---:|
-| 01 | Linux Server Health Monitor | CPU, memory, disk, uptime, system health | ✅ |
-| 02 | Log Analyzer | Log parsing, filtering, system troubleshooting | ✅ |
-| 03 | Automated Backup Manager | Backup automation, archive management | ✅ |
-| 04 | User Management Menu | Linux users, groups, permissions, scripting | ✅ |
+| 01 | [Linux Server Health Monitor](./Linux_Server_Health_Monitor) | CPU, memory, disk, uptime, and overall system health | ✅ |
+| 02 | [Log Analyzer](./Log_Analyzer) | Log parsing, filtering, and troubleshooting | ✅ |
+| 03 | [File Organizer](./File_Organizer) | File classification, automation, and filesystem operations | ✅ |
+| 04 | [System Information Reporter](./System_Information_Reporter) | System inventory and environment reporting | ✅ |
+| 05 | [Disk Usage Checker](./Disk_Usage_Checker) | Storage usage analysis and disk monitoring | ✅ |
+| 06 | [Process Manager](./Process-Manager) | Process inspection, control, and system operations | ✅ |
 
 More projects will be added as the repository continues to evolve.
 
@@ -27,14 +29,16 @@ The projects in this repository focus on practical Linux skills including:
 - Bash scripting
 - System monitoring
 - Log analysis
-- User and group management
-- File and permission management
-- Process and service management
+- Filesystem operations
+- Process management
+- Disk and storage monitoring
+- System information collection
+- User and permission management
+- Service management
 - Backup and restore operations
 - Package management
 - Scheduled automation
 - SSH administration
-- Storage management
 - Troubleshooting
 - Networking diagnostics
 - Security hardening
@@ -44,7 +48,7 @@ The projects in this repository focus on practical Linux skills including:
 
 ## 🏗️ Learning Progression
 
-The original roadmap was designed around the following progression:
+The original roadmap was designed around this progression:
 
 ```text
 Linux Fundamentals
@@ -62,7 +66,7 @@ Security
 DevOps Integration
 ```
 
-The goal is not simply to practice Linux commands, but to understand how Linux systems are operated, automated, monitored, secured, and integrated into larger infrastructure environments.
+The goal is not simply to practice Linux commands, but to understand how Linux systems are **operated, monitored, automated, secured, and integrated into modern infrastructure environments**.
 
 ---
 
@@ -74,12 +78,12 @@ The goal is not simply to practice Linux commands, but to understand how Linux s
 |---:|---|:---:|
 | 01 | Linux Server Health Monitor | ✅ |
 | 02 | Log Analyzer | ✅ |
-| 03 | Automated Backup Manager | ✅ |
-| 04 | User Management Menu | ✅ |
-| 05 | File Organizer | ⏳ |
-| 06 | System Information Reporter | ⏳ |
-| 07 | Disk Usage Analyzer | ⏳ |
-| 08 | Process Manager | ⏳ |
+| 03 | Automated Backup Manager | ⏳ |
+| 04 | User Management Menu | ⏳ |
+| 05 | File Organizer | ✅ |
+| 06 | System Information Reporter | ✅ |
+| 07 | Disk Usage Checker | ✅ |
+| 08 | Process Manager | ✅ |
 | 09 | Service Status Checker | ⏳ |
 | 10 | Automated Cleanup Script | ⏳ |
 
@@ -157,12 +161,12 @@ Planned areas include:
 
 As my DevOps learning progressed, several advanced Linux roadmap topics naturally moved into dedicated repositories.
 
-Instead of duplicating the same infrastructure exercises here, these areas are now developed more deeply in:
+Instead of duplicating the same infrastructure exercises here, these areas are developed more deeply in:
 
 - [Docker Projects](https://github.com/amirashofteh/Docker-Projects)
 - [Ansible Projects](https://github.com/amirashofteh/Ansible-Projects)
 
-This Linux repository therefore remains focused on building the underlying **system administration, troubleshooting, scripting, networking, and operational foundation** used throughout those projects.
+This repository therefore remains focused on the underlying **Linux administration, troubleshooting, scripting, monitoring, and operational foundation** used throughout those projects.
 
 ---
 
@@ -176,7 +180,7 @@ This Linux repository therefore remains focused on building the underlying **sys
 - cron
 - Git
 - GitHub
-- Standard Linux command-line tools
+- Standard Linux command-line utilities
 
 Depending on the project, additional tools may be introduced for monitoring, networking, security, or automation.
 
@@ -184,7 +188,7 @@ Depending on the project, additional tools may be introduced for monitoring, net
 
 ## 🔍 Engineering Approach
 
-Each project is intended to follow a practical workflow:
+Each project follows a practical workflow:
 
 ```text
 Identify the system task
@@ -212,7 +216,7 @@ The emphasis is on understanding **system behavior and operations**, not simply 
 
 ## 🎯 Repository Goals
 
-This repository is intended to strengthen the Linux foundation required for:
+This repository is designed to strengthen the Linux foundation required for:
 
 - DevOps Engineering
 - Infrastructure Engineering
