@@ -1,0 +1,69 @@
+#!/bin/bash
+
+show_menu() {
+    echo
+    echo "=============================="
+    echo "       SYSTEM INFORMATION"
+    echo "=============================="
+    echo "1. Username"
+    echo "2. Hostname"
+    echo "3. Kernel Version"
+    echo "4. CPU Architecture"
+    echo "5. Uptime"
+    echo "6. Exit"
+    echo "=============================="
+}
+
+get_system_info() {
+
+    while true
+    do
+        show_menu
+
+        read -r -p "Choose an option: " enter
+
+        case "$enter" in
+
+            1)
+                echo
+                echo "Your Username: $(whoami)"
+                ;;
+
+            2)
+                echo
+                echo "Your Hostname: $(hostname)"
+                ;;
+
+            3)
+                echo
+                echo "Your Kernel Version: $(uname -r)"
+                ;;
+
+            4)
+                echo
+                echo "Your CPU Architecture: $(uname -m)"
+                ;;
+
+            5)
+                echo
+                echo "Your Uptime: $(uptime -p)"
+                ;;
+
+            6)
+                echo
+                echo "Goodbye!"
+                break
+                ;;
+
+            *)
+                echo
+                echo "Invalid option!"
+                echo "Please try again."
+                ;;
+
+        esac
+    done
+}
+
+get_system_info
+

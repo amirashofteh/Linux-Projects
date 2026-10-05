@@ -1,0 +1,30 @@
+
+#!/bin/bash
+
+echo "Welcome to DISK USAGE CHECKER"
+echo "==============================================="
+
+echo "Enter your directory to check:"
+read -r input
+clear
+
+# Check if directory exists
+if [ ! -d "$input" ]; then
+    echo "Error: Directory does not exist!"
+    exit 1
+fi
+
+# Get disk usage percentage
+usage=$(df "$input" | awk 'NR==2 {print $5}' | tr -d '%')
+
+echo
+echo "Directory: $input"
+echo "Disk Usage: $usage%"
+echo "==============================================="
+
+# Check disk usage
+if [ "$usage" -ge 80 ]; then
+    echo "WARNING: Disk usage is high!"
+else
+    echo "Disk usage is normal."
+fi
