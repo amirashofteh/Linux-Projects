@@ -1,0 +1,4 @@
+TYPE,NAME,UID_OR_GID,CLASS_OR_MEMBERS,DETAIL,EXTRA
+"FINDING","amir","1002","MEDIUM","Regular account home directory missing","/home/amir"
+"FINDING","blackbox","1003","MEDIUM","Regular-range account uses non-login shell","/usr/sbin/nologin"
+"FINDING","blackbox","1003","MEDIUM","Regular account home directory missing","/home/blackbox"
